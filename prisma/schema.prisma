@@ -42,3 +42,12 @@ model TransactionSignature {
   signerAddress String
   signature     String
 }
+
+model User {
+  id           Int    @id @default(autoincrement())
+  username     String @unique
+  email        String @unique
+  password     String // Consider hashing the password before storing
+  privateKey   String // Store the private key securely
+  wallet       String @unique
+}
