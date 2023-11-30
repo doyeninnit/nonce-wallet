@@ -188,32 +188,96 @@
 // }
 
 
+// "use client";
+// import { ethers } from 'ethers'; // Import ethers for wallet generation
+// import { useRouter } from "next/navigation"; // Corrected from next/navigation
+// import { useEffect, useState } from "react";
+// import Button from "./button";
+
+// export default function CreateSCW() {
+//   const router = useRouter();
+
+//   const [signer, setSigner] = useState('');
+//   const [loading, setLoading] = useState(false);
+
+//   // Function to generate a new wallet address
+//   useEffect(() => {
+//     const wallet = ethers.Wallet.createRandom();
+//     setSigner(wallet.address);
+//   }, []);
+
+//   const onCreateSCW = async () => {
+//     try {
+//       setLoading(true);
+
+//       // Make the API call with the signer wrapped in an array
+//       const response = await fetch("/api/create-wallet", {
+//         method: "POST",
+//         body: JSON.stringify({ signers: [signer] }),
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       });
+
+//       const data = await response.json();
+//       if (data.error) {
+//         throw new Error(data.error);
+//       }
+
+//       window.alert(`Wallet created: ${data.address}`);
+//       router.push(`/`);
+//     } catch (error) {
+//       console.error(error);
+//       if (error instanceof Error) {
+//         window.alert(error.message);
+//       }
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <main className="flex flex-col gap-6 max-w-sm w-full">
+//       <div className="flex items-center gap-4">
+//         <input
+//           type="text"
+//           className="rounded-lg p-2 w-full text-slate-700"
+//           placeholder="Generated Wallet Address"
+//           value={signer}
+//           readOnly // The address is generated and not manually input
+//         />
+//       </div>
+//       {loading ? (
+//         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-800 mx-auto" />
+//       ) : (
+//         <Button onClick={onCreateSCW}>Create New Wallet</Button>
+//       )}
+//     </main>
+//   );
+// }
+
+
 "use client";
-import { ethers } from 'ethers'; // Import ethers for wallet generation
-import { useRouter } from "next/navigation"; // Corrected from next/navigation
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "./button";
+import { useRouter } from "next/navigation";
 
 export default function CreateSCW() {
   const router = useRouter();
 
-  const [signer, setSigner] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // Function to generate a new wallet address
-  useEffect(() => {
-    const wallet = ethers.Wallet.createRandom();
-    setSigner(wallet.address);
-  }, []);
 
   const onCreateSCW = async () => {
     try {
       setLoading(true);
 
-      // Make the API call with the signer wrapped in an array
+      // Send user details to the API
       const response = await fetch("/api/create-wallet", {
         method: "POST",
-        body: JSON.stringify({ signers: [signer] }),
+        body: JSON.stringify({ username, email, password }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -224,13 +288,11 @@ export default function CreateSCW() {
         throw new Error(data.error);
       }
 
-      window.alert(`Wallet created: ${data.address}`);
+      window.alert(`User and wallet created: ${data.userEoa.wallet}`);
       router.push(`/`);
     } catch (error) {
       console.error(error);
-      if (error instanceof Error) {
-        window.alert(error.message);
-      }
+      window.alert(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -238,19 +300,31 @@ export default function CreateSCW() {
 
   return (
     <main className="flex flex-col gap-6 max-w-sm w-full">
-      <div className="flex items-center gap-4">
-        <input
-          type="text"
-          className="rounded-lg p-2 w-full text-slate-700"
-          placeholder="Generated Wallet Address"
-          value={signer}
-          readOnly // The address is generated and not manually input
-        />
-      </div>
+      <input
+        type="text"
+        className="rounded-lg p-2 w-full text-slate-700"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        type="email"
+        className="rounded-lg p-2 w-full text-slate-700"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        className="rounded-lg p-2 w-full text-slate-700"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
       {loading ? (
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-800 mx-auto" />
       ) : (
-        <Button onClick={onCreateSCW}>Create New Wallet</Button>
+        <Button onClick={onCreateSCW}>Register and Create Wallet</Button>
       )}
     </main>
   );
