@@ -1,6 +1,6 @@
 import { Wallet } from "@prisma/client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { JSXElementConstructor, ReactElement, ReactNode, ReactPortal, useEffect, useState } from "react";
 import Icon from "./icon";
 import Button from "./button";
 
@@ -62,7 +62,7 @@ export default function WalletList({ address }: { address: string }) {
 
                 <div className="flex flex-col py-2 divide-y divide-gray-600">
                   {wallet.signers.length > 0 &&
-                    wallet.signers.map((signer, idx) => (
+                    wallet.signers.map((signer: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined, idx: any) => (
                       <div
                         key={`${wallet.address}-${signer}`}
                         className="px-4 flex items-center justify-center gap-2 py-2"

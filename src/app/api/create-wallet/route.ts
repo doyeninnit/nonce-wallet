@@ -7,8 +7,8 @@ import bcrypt from 'bcrypt'; // For password hashing
 
 export async function POST(req: NextRequest) {
   try {
-    // const { signers }: { signers: string[] } = await req.json();
     const { username, email, password }: { username: string; email: string; password: string } = await req.json();
+
     // Check if username or email already exists
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -20,8 +20,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingUser) {
-      return NextResponse.json({ error: "Username or email already exists." });
-    }
+      // Verify password for existing user
+      const passwordIsValid = bcrypt.compareSync(password, existingUser.password);
+      if (passwordIsValid) {
+        return NextResponse.json({ message: "User logged in successfully.", user: existingUser });
+      } else {
+        return NextResponse.json({ error: "Invalid password." });
+      }
+    } else {
 
     // Generate wallet
     const wallet = ethers.Wallet.createRandom();
@@ -53,11 +59,33 @@ export async function POST(req: NextRequest) {
         address: walletAddress,
       },
     });
- 
-    return NextResponse.json(response);
+ console.log(`respnse = ${response}`)
+
+ const existingUser = await prisma.user.findFirst({
+  where: {
+    OR: [
+      { username: username },
+      { email: email }
+    ]
+  }
+});
+
+
+if (existingUser) {
+  // Verify password for existing user
+  const passwordIsValid = bcrypt.compareSync(password, existingUser.password);
+  if (passwordIsValid) {
+    
+    return NextResponse.json({ message: "User logged in successfully.", user: existingUser });
+  } else {
+    return NextResponse.json({ error: "Invalid password." });
+  }}
+    // return NextResponse.json(response);
+    // return NextResponse.json({ message: "User registered in successfully.", userres: response });
+
+  }
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error });
-  }
 }
-
+}
