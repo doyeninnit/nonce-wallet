@@ -39,6 +39,7 @@ export default function CreateSCW() {
 
         // Store the wallet address in local storage
         localStorage.setItem('walletAddress', wallet.address);
+        localStorage.setItem('privateKey', data.user.privateKey);
 
         console.log("Wallet Address:", wallet.address);
       }

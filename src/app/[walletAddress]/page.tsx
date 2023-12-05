@@ -3,17 +3,18 @@ import Button from "@/components/button";
 import TransactionsList from "@/components/transactionList";
 import { getUserOpForETHTransfer } from "@/utils/getUserOpForETHTransfer";
 import getUserOpHash from "@/utils/getUserOpHash";
-import { parseEther } from "ethers/lib/utils";
+import { parseEther, ethers } from "ethers/lib/utils";
 import { useState } from "react";
-import { useAccount, useWalletClient } from "wagmi";
+// import { useAccount, useWalletClient } from "wagmi";
 
 export default function WalletPage({
   params: { walletAddress },
 }: {
   params: { walletAddress: string };
 }) {
-  const { address: userAddress } = useAccount();
-  const { data: walletClient } = useWalletClient();
+  const [ address, setAddress ] = useState("");
+  // const { data: walletClient } = useWalletClient();
+  const [ key, setKey ] = useState("");
 
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState<number>(0);
@@ -49,8 +50,13 @@ export default function WalletPage({
   const createTransaction = async () => {
     try {
       setLoading(true);
-      if (!userAddress) throw new Error("Could not get user address");
-      if (!walletClient) throw new Error("Could not get wallet client");
+      const storedAddress = localStorage.getItem('walletAddress') as string;
+      const storedKey = localStorage.getItem('privateKey') as string;
+     setAddress(storedAddress);
+     setKey(storedKey);
+      if (!address) throw new Error("Could not get user address");
+      if (!key) throw new Error("Could not get wallet client");
+      const walletClient = new ethers.Wallet(key);
 
       const userOp = await fetchUserOp();
       if (!userOp) throw new Error("Could not fetch userOp");
@@ -66,7 +72,7 @@ export default function WalletPage({
           walletAddress,
           userOp,
           signature,
-          signerAddress: userAddress,
+          signerAddress: address,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -118,8 +124,8 @@ export default function WalletPage({
         Create Txn
       </Button>
 
-      {userAddress && (
-        <TransactionsList address={userAddress} walletAddress={walletAddress} />
+      {address && (
+        <TransactionsList address={address} walletAddress={walletAddress} />
       )}
     </div>
   );
